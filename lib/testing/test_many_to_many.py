@@ -16,7 +16,7 @@ def test_contract_init():
     book = Book("Title")
     author = Author("Name")
     date = '01/01/2001'
-    royalties = 40000
+    royalties = 50
     contract = Contract(author, book, date, royalties)
 
     assert contract.author == author
@@ -28,7 +28,7 @@ def test_contract_validates_author():
     """Test Contract class validates author of type Author"""
     book = Book("Title")
     date = '01/01/2001'
-    royalties = 40000
+    royalties = 60
 
     with pytest.raises(Exception):
         Contract("Author", book, date, royalties)
@@ -37,7 +37,7 @@ def test_contract_validates_book():
     """Test Contract class validates book of type Book"""
     author = Author("Name")
     date = '01/01/2001'
-    royalties = 40000
+    royalties = 60
 
     with pytest.raises(Exception):
         Contract(author, "Book", date, royalties)
@@ -46,7 +46,7 @@ def test_contract_validates_date():
     """Test Contract class validates date of type str"""
     author = Author("Name")
     book = Book("Title")
-    royalties = 40000
+    royalties = 60
 
     with pytest.raises(Exception):
         Contract(author, book, 1012001, royalties)
@@ -64,7 +64,7 @@ def test_author_has_contracts():
     """Test Author class has method contracts() that returns a list of its contracts"""
     author = Author("Name")
     book = Book("Title")
-    contract = Contract(author, book, '01/01/2001', 50000)
+    contract = author.sign_contract(book, '01/01/2001', 50)
 
     assert author.contracts() == [contract]
 
@@ -72,7 +72,7 @@ def test_author_has_books():
     """Test Author class has method books() that returns a list of its books"""
     author = Author("Name")
     book = Book("Title")
-    Contract(author, book, '01/01/2001', 50000)
+    author.sign_contract(book, '01/01/2001', 50)
 
     assert book in author.books()
 
@@ -80,7 +80,7 @@ def test_book_has_contracts():
     """Test Book class has method contracts() that returns a list of its contracts"""
     author = Author("Name")
     book = Book("Title")
-    contract = Contract(author, book, '01/01/2001', 50000)
+    contract = author.sign_contract(book, '01/01/2001', 50)
 
     assert book.contracts() == [contract]
 
@@ -88,7 +88,7 @@ def test_book_has_authors():
     """Test Book class has method authors() that returns a list of its authors"""
     author = Author("Name")
     book = Book("Title")
-    Contract(author, book, '01/01/2001', 50000)
+    author.sign_contract(book, '01/01/2001', 50)
 
     assert author in book.authors()
 
@@ -97,39 +97,33 @@ def test_author_can_sign_contract():
     author = Author("Name")
     book = Book("Title")
 
-    contract = author.sign_contract(book, "01/01/2001", 60000)
+    contract = author.sign_contract(book, "01/01/2001", 50)
 
     assert isinstance(contract, Contract)
     assert contract.author == author
     assert contract.book == book
     assert contract.date == "01/01/2001"
-    assert contract.royalties == 60000
+    assert contract.royalties == 50
 
 def test_author_has_total_royalties():
     """Test Author class has method total_royalties that gets the sum of all its related contracts' royalties"""
     author = Author("Name")
     book1 = Book("Title 1")
     book2 = Book("Title 2")
-    book3 = Book("Title 3")
 
-    Contract(author, book1, "01/01/2001", 10)
-    Contract(author, book2, "01/01/2001", 20)
-    Contract(author, book3, "01/01/2001", 30)
+    author.sign_contract(book1, "01/01/2001", 10)
+    author.sign_contract(book2, "01/01/2001", 20)
 
-    assert author.total_royalties() == 60
+    assert author.total_royalties() == 30
 
-def test_contract_contracts_by_date():
-    """Test Contract class has method contracts_by_date() that sorts all contracts by date"""
-    Contract.all = []
+def test_contracts_by_date():
+    """Test Contract class has method contracts_by_date() that returns contracts sorted by date"""
+    Contract.all_contracts = []  # Resetting for the test
     author1 = Author("Name 1")
     book1 = Book("Title 1")
-    book2 = Book("Title 2")
-    book3 = Book("Title 3")
-    author2 = Author("Name 2")
-    book4 = Book("Title 4")
-    contract1 = Contract(author1, book1, "02/01/2001", 10)
-    contract2 = Contract(author1, book2, "01/01/2001", 20)
-    contract3 = Contract(author1, book3, "03/01/2001", 30)
-    contract4 = Contract(author2, book4, "01/01/2001", 40)
 
-    assert Contract.contracts_by_date('01/01/2001') == [contract2, contract4]
+    contract1 = author1.sign_contract(book1, "02/01/2001", 10)
+    contract2 = author1.sign_contract(book1, "01/01/2001", 20)
+    contracts = Contract.contracts_by_date("01/01/2001")
+
+    assert contracts == [contract2]
